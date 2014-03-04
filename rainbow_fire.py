@@ -17,6 +17,13 @@ blast_tx = sfml.Texture.from_file('blast.png')
 # Load sounds
 blast_sound = sfml.Sound(sfml.SoundBuffer.from_file('blast.wav'))
 
+# Load font
+bangers_ft = sfml.Font.from_file('Bangers.ttf')
+
+# Score 
+score = 0
+score_text = sfml.Text('Score: ' + str(score), bangers_ft)
+score_text.position = (window.size.x-score_text.global_bounds.width-20, 10)
 
 # Player
 player = sfml.Sprite(rainbow_dash_tx)
@@ -54,6 +61,7 @@ while window.is_open:
         player.move((-player_speed, 0))
     if sfml.Keyboard.is_key_pressed(sfml.Keyboard.RIGHT):
         player.move((player_speed, 0))
+    # Fire!
     if sfml.Keyboard.is_key_pressed(sfml.Keyboard.SPACE) and fire_clock.elapsed_time.milliseconds > fire_cooldown:
         blast = sfml.Sprite(blast_tx)
         blast.ratio = (0.25, 0.25)
@@ -63,7 +71,7 @@ while window.is_open:
         blast_sound.play()
         fire_clock.restart()
 
-    # Update blast
+    # Update blasts
     for blast in blasts:
         blast.move(blast_speed)
         if not visible_area.intersects(blast.global_bounds):
@@ -85,6 +93,10 @@ while window.is_open:
         for blast in blasts:
             if blast.global_bounds.intersects(enemy.global_bounds):
                 enemies.remove(enemy)
+                blasts.remove(blast)
+                score += 10
+                score_text = sfml.Text('Score: ' + str(score), bangers_ft)
+                score_text.position = (window.size.x-score_text.global_bounds.width-20, 10)
 
     # Draw
     window.clear(sfml.Color(0,128,255))
@@ -93,5 +105,6 @@ while window.is_open:
     for enemy in enemies:
         window.draw(enemy)
     window.draw(player)   
+    window.draw(score_text)
     window.display()
     sfml.system.sleep(sfml.milliseconds(20))
