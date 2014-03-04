@@ -13,9 +13,11 @@ random.seed(time.time())
 rainbow_dash_tx = sfml.Texture.from_file('rainbow_dash.png')
 evil_pony_tx = sfml.Texture.from_file('evil_pony.png')
 blast_tx = sfml.Texture.from_file('blast.png')
+bullet_tx = sfml.Texture.from_file('bullet.png')
 
 # Load sounds
 blast_sound = sfml.Sound(sfml.SoundBuffer.from_file('blast.wav'))
+shot_sound = sfml.Sound(sfml.SoundBuffer.from_file('shot.wav'))
 
 # Load font
 bangers_ft = sfml.Font.from_file('Bangers.ttf')
@@ -33,7 +35,7 @@ player_speed = 10
 
 # Enemies
 enemies = []
-enemy_speed = (-10, 0)
+enemy_speed = (-5, 0)
 spawn_clock = sfml.Clock()
 spawn_time = 1000
 
@@ -42,6 +44,12 @@ blasts = []
 blast_speed = (15, 0)
 fire_clock = sfml.Clock()
 fire_cooldown = 500
+
+# Bullets
+bullets = []
+bullet_speed = (-10, 0)
+bullet_clock = sfml.Clock()
+bullet_interval = random.randint(500, 1000)
 
 while window.is_open:
 
@@ -71,17 +79,35 @@ while window.is_open:
         blast_sound.play()
         fire_clock.restart()
 
+    # Enemy fire
+    if len(enemies) > 0 and bullet_clock.elapsed_time.milliseconds > bullet_interval:
+        bullet = sfml.Sprite(bullet_tx)
+        bullet.ratio = (0.25, 0.25)
+        i = random.randint(0, len(enemies)-1)
+        bullet.position = enemies[i].position
+        bullet.move((-20, 20))
+        bullets.append(bullet)
+        bullet_interval = random.randint(500, 1000)
+        shot_sound.play()
+        bullet_clock.restart()
+
     # Update blasts
     for blast in blasts:
         blast.move(blast_speed)
         if not visible_area.intersects(blast.global_bounds):
             blasts.remove(blast)
 
+    # Update bullets:
+    for bullet in bullets:
+        bullet.move(bullet_speed)
+        if not visible_area.intersects(bullet.global_bounds):
+            bullets.remove(bullet)
+
     # Spawn enemy
     if spawn_clock.elapsed_time.milliseconds > spawn_time:
         enemy = sfml.Sprite(evil_pony_tx)
         enemy.ratio = (0.25,0.25)
-        enemy.position = (window.size.x-50, random.randint(0,window.size.y))
+        enemy.position = (window.size.x-50, random.randint(0,window.size.y-100))
         enemies.append(enemy)
         spawn_clock.restart()
 
@@ -104,6 +130,8 @@ while window.is_open:
         window.draw(blast)
     for enemy in enemies:
         window.draw(enemy)
+    for bullet in bullets:
+        window.draw(bullet)
     window.draw(player)   
     window.draw(score_text)
     window.display()
