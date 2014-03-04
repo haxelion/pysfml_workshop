@@ -14,6 +14,10 @@ rainbow_dash_tx = sfml.Texture.from_file('rainbow_dash.png')
 evil_pony_tx = sfml.Texture.from_file('evil_pony.png')
 blast_tx = sfml.Texture.from_file('blast.png')
 
+# Load sounds
+blast_sound = sfml.Sound(sfml.SoundBuffer.from_file('blast.wav'))
+
+
 # Player
 player = sfml.Sprite(rainbow_dash_tx)
 player.position = (50, window.size.y/2)
@@ -56,6 +60,7 @@ while window.is_open:
         blast.position = player.position
         blast.move((40, 20))
         blasts.append(blast)
+        blast_sound.play()
         fire_clock.restart()
 
     # Update blast
