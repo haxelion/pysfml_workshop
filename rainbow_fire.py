@@ -18,6 +18,7 @@ bullet_tx = sfml.Texture.from_file('bullet.png')
 # Load sounds
 blast_sound = sfml.Sound(sfml.SoundBuffer.from_file('blast.wav'))
 shot_sound = sfml.Sound(sfml.SoundBuffer.from_file('shot.wav'))
+smash_sound = sfml.Sound(sfml.SoundBuffer.from_file('smash.wav'))
 
 # Load font
 bangers_ft = sfml.Font.from_file('Bangers.ttf')
@@ -26,6 +27,11 @@ bangers_ft = sfml.Font.from_file('Bangers.ttf')
 score = 0
 score_text = sfml.Text('Score: ' + str(score), bangers_ft)
 score_text.position = (window.size.x-score_text.global_bounds.width-20, 10)
+
+# Lives
+lives = 5
+lives_text = sfml.Text('Lives: ' + str(lives), bangers_ft)
+lives_text.position = (20, 10)
 
 # Player
 player = sfml.Sprite(rainbow_dash_tx)
@@ -123,6 +129,21 @@ while window.is_open:
                 score += 10
                 score_text = sfml.Text('Score: ' + str(score), bangers_ft)
                 score_text.position = (window.size.x-score_text.global_bounds.width-20, 10)
+    
+    # Check player status
+    hurt = False
+    for bullet in bullets:
+        if player.global_bounds.intersects(bullet.global_bounds):
+            bullets.remove(bullet)
+            hurt = True
+    for enemy in enemies:
+        if player.global_bounds.intersects(enemy.global_bounds):
+            enemies.remove(enemy)
+            hurt = True
+    if hurt:
+        lives -= 1
+        lives_text = sfml.Text('Lives: ' + str(lives), bangers_ft)
+        smash_sound.play()
 
     # Draw
     window.clear(sfml.Color(0,128,255))
@@ -134,5 +155,6 @@ while window.is_open:
         window.draw(bullet)
     window.draw(player)   
     window.draw(score_text)
+    window.draw(lives_text)
     window.display()
     sfml.system.sleep(sfml.milliseconds(20))
